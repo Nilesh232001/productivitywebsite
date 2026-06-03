@@ -18,7 +18,7 @@ const tones = {
 
 export function StatCard({ label, value, helper, icon: Icon, tone = "forest" }: StatCardProps) {
   return (
-    <section className="rounded-lg border border-line bg-white p-4 shadow-soft">
+    <section className="rounded-lg border border-line bg-surface p-4 shadow-soft">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-sm text-ink/60">{label}</p>

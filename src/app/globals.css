@@ -4,8 +4,30 @@
 
 :root {
   color-scheme: light;
-  background: #f7faf8;
-  color: #16211c;
+  --ink: 22 33 28;
+  --mist: 238 243 240;
+  --line: 219 228 223;
+  --surface: 255 255 255;
+  --forest: 31 107 79;
+  --coral: 216 95 74;
+  --gold: 217 155 43;
+  --sky: 50 121 168;
+  background: rgb(var(--mist));
+  color: rgb(var(--ink));
+}
+
+:root.dark {
+  color-scheme: dark;
+  --ink: 230 238 234;
+  --mist: 16 23 21;
+  --line: 37 49 45;
+  --surface: 23 30 28;
+  --forest: 64 160 122;
+  --coral: 232 121 96;
+  --gold: 222 178 93;
+  --sky: 110 174 206;
+  background: rgb(var(--mist));
+  color: rgb(var(--ink));
 }
 
 * {
@@ -17,8 +39,15 @@ body {
   min-height: 100vh;
   background:
     linear-gradient(180deg, rgba(238, 243, 240, 0.7), rgba(247, 250, 248, 0.95)),
-    #f7faf8;
+    rgb(var(--mist));
+  color: rgb(var(--ink));
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.dark body {
+  background:
+    linear-gradient(180deg, rgba(8, 12, 11, 0.75), rgba(16, 23, 21, 0.95)),
+    rgb(var(--mist));
 }
 
 button,

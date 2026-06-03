@@ -1,61 +1,72 @@
 import {
-  BarChart3,
-  BookOpen,
-  CalendarDays,
-  CheckSquare,
-  Flame,
   Gauge,
-  Home,
-  NotebookPen,
-  Settings,
-  Target
+  LogOut,
+  User
 } from "lucide-react";
+import { signOut } from "@/lib/actions";
+import { getProfile, getSession } from "@/lib/supabase/db";
+import { SidebarNav } from "@/components/sidebar-nav";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const navItems = [
-  { id: "home", label: "Home", icon: Home },
-  { id: "dashboard", label: "Dashboard", icon: BarChart3 },
-  { id: "habits", label: "Habits", icon: Flame },
-  { id: "tasks", label: "Tasks", icon: CheckSquare },
-  { id: "study", label: "Study", icon: BookOpen },
-  { id: "goals", label: "Goals", icon: Target },
-  { id: "journal", label: "Journal", icon: NotebookPen },
-  { id: "analytics", label: "Analytics", icon: BarChart3 },
-  { id: "calendar", label: "Calendar", icon: CalendarDays },
-  { id: "settings", label: "Settings", icon: Settings }
-];
+  { id: "home", label: "Home", icon: "home", href: "/#home" },
+  { id: "tasks", label: "Tasks", icon: "tasks", href: "/#tasks" },
+  { id: "notes", label: "Notes", icon: "notes", href: "/#notes" },
+  { id: "goals", label: "Goals", icon: "goals", href: "/#goals" },
+  { id: "history", label: "History", icon: "history", href: "/history" }
+] as const;
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+async function handleSignOut() {
+  "use server";
+  await signOut();
+}
+
+export async function AppShell({ children }: { children: React.ReactNode }) {
+  const session = await getSession();
+  const profile = await getProfile();
+
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[260px_1fr]">
-      <aside className="border-b border-line bg-white/92 px-4 py-4 lg:sticky lg:top-0 lg:h-screen lg:border-b-0 lg:border-r">
-        <div className="flex items-center gap-3">
+      <aside className="border-b border-line bg-surface/92 px-4 py-4 lg:sticky lg:top-0 lg:h-screen lg:border-b-0 lg:border-r lg:flex lg:flex-col">
+        <div className="flex items-start gap-3">
           <div className="grid h-10 w-10 place-items-center rounded-md bg-forest text-white">
             <Gauge aria-hidden className="h-5 w-5" />
           </div>
-          <div>
-            <p className="text-lg font-semibold text-ink">Personal OS</p>
-            <p className="text-xs text-ink/55">Productivity command center</p>
+          <div className="flex flex-1 items-start justify-between gap-3">
+            <div>
+              <p className="text-lg font-semibold text-ink">Personal OS</p>
+              <p className="text-xs text-ink/55">Productivity command center</p>
+            </div>
+            <ThemeToggle />
           </div>
         </div>
-        <nav className="mt-6 flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible">
-          {navItems.map((item, index) => {
-            const Icon = item.icon;
-            const active = index === 0;
+        <SidebarNav items={navItems} />
 
-            return (
-              <a
-                className={`focus-ring flex min-h-10 shrink-0 items-center gap-3 rounded-md px-3 text-sm font-medium ${
-                  active ? "bg-forest text-white" : "text-ink/70 hover:bg-mist hover:text-ink"
-                }`}
-                href={`#${item.id}`}
-                key={item.label}
+        {/* User section at bottom */}
+        <div className="mt-auto hidden border-t border-line pt-4 lg:block">
+          <div className="flex items-center gap-3 mb-4 px-2">
+            <div className="h-8 w-8 rounded-full bg-forest/10 flex items-center justify-center">
+              <User className="h-4 w-4 text-forest" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-ink truncate">
+                {profile?.full_name || session?.user?.email || "User"}
+              </p>
+              <p className="text-xs text-ink/55 truncate">Level {profile?.level || 1}</p>
+            </div>
+          </div>
+          {session ? (
+            <form action={handleSignOut}>
+              <button
+                type="submit"
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-coral hover:bg-coral/10 rounded-md transition-colors"
               >
-                <Icon aria-hidden className="h-4 w-4" />
-                <span>{item.label}</span>
-              </a>
-            );
-          })}
-        </nav>
+                <LogOut className="h-4 w-4" />
+                Sign Out
+              </button>
+            </form>
+          ) : null}
+        </div>
       </aside>
       <main className="px-4 py-5 sm:px-6 lg:px-8">{children}</main>
     </div>

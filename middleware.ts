@@ -8,7 +8,7 @@ type CookieToSet = {
 };
 
 export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({ request });
+  let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -16,20 +16,40 @@ export async function middleware(request: NextRequest) {
     {
       cookies: {
         getAll() {
-          return request.cookies.getAll();
+          return request.cookies.getAll().map((cookie) => ({
+            name: cookie.name,
+            value: cookie.value
+          }));
         },
         setAll(cookiesToSet: CookieToSet[]) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-          response = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
+          cookiesToSet.forEach(({ name, value, options }) => {
+            request.cookies.set(name, value);
+            supabaseResponse.cookies.set(name, value, options);
+          });
         }
       }
     }
   );
 
-  await supabase.auth.getUser();
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
 
-  return response;
+  // If user is not authenticated and trying to access protected route
+  if (!user && !request.nextUrl.pathname.startsWith("/auth")) {
+    return NextResponse.redirect(new URL("/auth", request.url));
+  }
+
+  // If user is authenticated and on auth page, redirect to home
+  if (user && request.nextUrl.pathname.startsWith("/auth")) {
+    const redirectResponse = NextResponse.redirect(new URL("/", request.url));
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(cookie);
+    });
+    return redirectResponse;
+  }
+
+  return supabaseResponse;
 }
 
 export const config = {

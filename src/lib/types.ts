@@ -1,6 +1,18 @@
 export type Priority = "Critical" | "High" | "Medium" | "Low";
 export type GoalCadence = "Daily" | "Weekly" | "Monthly" | "Yearly";
 export type Mood = "Focused" | "Calm" | "Tired" | "Stressed" | "Excited";
+export type TaskStatus = "Backlog" | "Today" | "In Progress" | "Done";
+
+export type Profile = {
+  id: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  timezone: string;
+  xp: number;
+  level: number;
+  created_at: string;
+  updated_at: string;
+};
 
 export type Habit = {
   id: string;
@@ -17,7 +29,7 @@ export type Task = {
   title: string;
   category: string;
   priority: Priority;
-  status: "Backlog" | "Today" | "In Progress" | "Done";
+  status: TaskStatus;
   dueDate: string;
   tags: string[];
 };
@@ -45,6 +57,16 @@ export type JournalEntry = {
   mood: Mood;
   gratitude: string;
   reflection: string;
+};
+
+export type HistoryDay = {
+  date: string;
+  label: string;
+  targets: string;
+  quickNote: string;
+  tasks: Task[];
+  studySessions: StudySession[];
+  score?: number;
 };
 
 export type Achievement = {
